@@ -1,16 +1,11 @@
 {
-  "name": "gmx",
-  "license": "UNLICENSED",
-  "scripts": {
-    "codegen": "graph codegen",
-    "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ gmx",
-    "create-local": "graph create --node http://localhost:8020/ gmx",
-    "remove-local": "graph remove --node http://localhost:8020/ gmx",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 gmx"
-  },
-  "dependencies": {
-    "@graphprotocol/graph-cli": "0.21.1",
-    "@graphprotocol/graph-ts": "0.20.0"
-  }
+    "name": "gmx-subgraph",
+    "license": "UNLICENSED",
+    "dependencies": {
+        "@graphprotocol/graph-cli": "0.21.1",
+        "@graphprotocol/graph-ts": "0.20.0",
+        "concat-stream": "^2.0.0",
+        "ethers": "^5.4.6",
+        "moment": "^2.29.1"
+    }
 }

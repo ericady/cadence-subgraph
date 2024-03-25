@@ -1,0 +1,13 @@
+{
+  "name": "gambit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "deploy-test": "graph deploy --product hosted-service gdev8317/gambit --deploy-key $(cat .access_token)",
+    "deploy-sandbox": "graph deploy --product hosted-service gdev8317/gmx2 --deploy-key $(cat .access_token)",
+    "deploy-prod": "graph deploy --product hosted-service gmx-io/gmx-bsc-stats"
+  },
+  "author": "",
+  "license": "ISC"
+}

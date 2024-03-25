@@ -1,0 +1,19 @@
+{
+  "name": "gmx-referrals",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen ./subgraph-canto.yaml",
+    "build": "graph build ./subgraph-canto.yaml",
+    "deploy-satsuma:fuji": "graph deploy gmx-fuji-referrals ./subgraph-fuji.yaml --version-label $(git rev-parse --abbrev-ref HEAD)-$(date '+%y%m%d%H%M%S')-$(git rev-parse --short HEAD) --node https://app.satsuma.xyz/api/subgraphs/deploy --ipfs https://ipfs.satsuma.xyz --deploy-key $(cat .satsuma_token)",
+    "deploy-satsuma:avalanche": "graph deploy gmx-avalanche-referrals ./subgraph-avalanche.yaml --version-label $(git rev-parse --abbrev-ref HEAD)-$(date '+%y%m%d%H%M%S')-$(git rev-parse --short HEAD) --node https://app.satsuma.xyz/api/subgraphs/deploy --ipfs https://ipfs.satsuma.xyz --deploy-key $(cat .satsuma_token)",
+    "deploy-satsuma:goerli": "graph deploy gmx-goerli-referrals ./subgraph-goerli.yaml --version-label $(git rev-parse --abbrev-ref HEAD)-$(date '+%y%m%d%H%M%S')-$(git rev-parse --short HEAD) --node https://app.satsuma.xyz/api/subgraphs/deploy --ipfs https://ipfs.satsuma.xyz --deploy-key $(cat .satsuma_token)",
+    "deploy-satsuma:arbitrum": "graph deploy gmx-arbitrum-referrals ./subgraph-arbitrum.yaml --version-label $(git rev-parse --abbrev-ref HEAD)-$(date '+%y%m%d%H%M%S')-$(git rev-parse --short HEAD) --node https://app.satsuma.xyz/api/subgraphs/deploy --ipfs https://ipfs.satsuma.xyz --deploy-key $(cat .satsuma_token)",
+    "deploy-satsuma:cantoTestnet": "graph deploy gmx-cantoTestnet-referrals ./subgraph-cantoTestnet.yaml --version-label $(git rev-parse --abbrev-ref HEAD)-$(date '+%y%m%d%H%M%S')-$(git rev-parse --short HEAD) --node http://localhost:8020 --ipfs http://localhost:5001/",
+    "deploy-satsuma:canto": "graph deploy gmx-canto-referrals ./subgraph-canto.yaml --version-label $(git rev-parse --abbrev-ref HEAD)-$(date '+%y%m%d%H%M%S')-$(git rev-parse --short HEAD) --node http://localhost:8020 --ipfs http://localhost:5001/"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.21.1",
+    "@graphprotocol/graph-ts": "0.20.0",
+    "binaryen": "^114.0.0"
+  }
+}

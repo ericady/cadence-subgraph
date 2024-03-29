@@ -6,6 +6,26 @@ schema:
 
 dataSources:
   - kind: ethereum/contract
+    name: ChainlinkAggregator
+    network: mainnet
+    source:
+      address: "0x50db815D3c4B869F89925690E936ED85b0b76075"
+      abi: ChainlinkAggregator
+      startBlock: 122608810
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ChainlinkPrice
+      abis:
+        - name: ChainlinkAggregator
+          file: ./abis/ChainlinkAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdatedBTC
+      file: ./src/pricesMapping.ts
+  - kind: ethereum/contract
     name: ChainlinkAggregatorBTC
     network: mainnet
     source:

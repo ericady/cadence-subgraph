@@ -343,3 +343,8 @@ type OpenInterestByToken @entity {
   long: BigInt!
   short: BigInt!
 }
+
+type LastPriceFeedRound @entity {
+  id: ID!
+  round: BigInt!
+}

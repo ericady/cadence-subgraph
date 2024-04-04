@@ -137,7 +137,7 @@ export function handleIncreasePosition(event: IncreasePosition): void {
     event.params.indexToken
   );
   updatePriceFeeds(
-    "0x51fc0f6660482ea73330e414efd7808811a57fa2", // Premia Arb
+    event.params.collateralToken.toHexString(),
     event.block.number
   );
 }

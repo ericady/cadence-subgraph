@@ -1,4 +1,4 @@
-import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { BigInt, Address, log } from "@graphprotocol/graph-ts";
 
 import {
   ChainlinkPrice,
@@ -8,15 +8,9 @@ import {
 } from "../generated/schema";
 
 import {
-  WETH,
-  BTC,
-  LINK,
-  UNI,
-  MIM,
-  SPELL,
-  SUSHI,
-  DAI,
-  CAD,
+  CANTO,
+  cNOTE,
+  getAggregatorAddr,
   getTokenAmountUsd,
   timestampToPeriod,
 } from "./helpers";
@@ -31,6 +25,15 @@ import { SetPrice } from "../generated/FastPriceFeed/FastPriceFeed";
 import { PriceUpdate } from "../generated/FastPriceEvents/FastPriceEvents";
 
 import { Swap as UniswapSwap } from "../generated/UniswapPool/UniswapPoolV3";
+
+export function handleAnswerUpdated(event: AnswerUpdatedEvent): void {
+  _storeChainlinkPrice(
+    CANTO,
+    event.params.current,
+    event.block.timestamp,
+    event.block.number
+  );
+}
 
 function _storeChainlinkPrice(
   token: string,
@@ -55,130 +58,6 @@ function _storeChainlinkPrice(
   totalEntity.timestamp = timestamp.toI32();
   totalEntity.blockNumber = blockNumber.toI32();
   totalEntity.save();
-}
-
-export function handleAnswerUpdatedBTC(event: AnswerUpdatedEvent): void {
-  _storeChainlinkPrice(
-    BTC,
-    event.params.current,
-    event.block.timestamp,
-    event.block.number
-  );
-}
-
-export function handleAnswerUpdatedETH(event: AnswerUpdatedEvent): void {
-  _storeChainlinkPrice(
-    WETH,
-    event.params.current,
-    event.block.timestamp,
-    event.block.number
-  );
-}
-
-export function handleAnswerUpdatedUNI(event: AnswerUpdatedEvent): void {
-  _storeChainlinkPrice(
-    UNI,
-    event.params.current,
-    event.block.timestamp,
-    event.block.number
-  );
-}
-
-export function handleAnswerUpdatedLINK(event: AnswerUpdatedEvent): void {
-  _storeChainlinkPrice(
-    LINK,
-    event.params.current,
-    event.block.timestamp,
-    event.block.number
-  );
-}
-
-export function handleAnswerUpdatedSPELL(event: AnswerUpdatedEvent): void {
-  _storeChainlinkPrice(
-    SPELL,
-    event.params.current,
-    event.block.timestamp,
-    event.block.number
-  );
-}
-
-export function handleAnswerUpdatedMIM(event: AnswerUpdatedEvent): void {
-  _storeChainlinkPrice(
-    MIM,
-    event.params.current,
-    event.block.timestamp,
-    event.block.number
-  );
-}
-
-export function handleAnswerUpdatedDAI(event: AnswerUpdatedEvent): void {
-  _storeChainlinkPrice(
-    DAI,
-    event.params.current,
-    event.block.timestamp,
-    event.block.number
-  );
-}
-
-export function handleAnswerUpdatedSUSHI(event: AnswerUpdatedEvent): void {
-  _storeChainlinkPrice(
-    SUSHI,
-    event.params.current,
-    event.block.timestamp,
-    event.block.number
-  );
-}
-
-function _storeUniswapPrice(
-  id: string,
-  token: string,
-  price: BigInt,
-  period: string,
-  timestamp: BigInt,
-  blockNumber: BigInt
-): void {
-  let entity = UniswapPrice.load(id);
-  if (entity == null) {
-    entity = new UniswapPrice(id);
-  }
-
-  entity.timestamp = timestamp.toI32();
-  entity.blockNumber = blockNumber.toI32();
-  entity.value = price;
-  entity.token = token;
-  entity.period = period;
-  entity.save();
-}
-
-export function handleUniswapGmxEthSwap(event: UniswapSwap): void {
-  let ethPerGmx =
-    (-(
-      (event.params.amount0 * BigInt.fromI32(10).pow(18)) /
-      event.params.amount1
-    ) *
-      BigInt.fromI32(100)) /
-    BigInt.fromI32(99);
-  let gmxPrice = getTokenAmountUsd(WETH, ethPerGmx);
-
-  let totalId = CAD;
-  _storeUniswapPrice(
-    totalId,
-    CAD,
-    gmxPrice,
-    "last",
-    event.block.timestamp,
-    event.block.number
-  );
-
-  let id = CAD + ":" + event.block.timestamp.toString();
-  _storeUniswapPrice(
-    id,
-    CAD,
-    gmxPrice,
-    "any",
-    event.block.timestamp,
-    event.block.number
-  );
 }
 
 function _handleFastPriceUpdate(
@@ -261,39 +140,19 @@ export function handleSetPrice(event: SetPrice): void {
 }
 
 export function updatePriceFeeds(token: string, blockNumber: BigInt): void {
-  // TODO: Find matching aggregator addr
-  const aggregatorAddr: Address = Address.fromString(
-    "0xdDb6F90fFb4d3257dd666b69178e5B3c5Bf41136"
+  if (token == cNOTE) return;
+  let aggregatorAddr = getAggregatorAddr(token);
+  const aggregator = ChainlinkAggregator.bind(
+    Address.fromString(aggregatorAddr)
   );
-  const aggregator = ChainlinkAggregator.bind(aggregatorAddr);
 
   const lastOnchainRound = aggregator.latestRound();
-  const lastStoredRound = LastPriceFeedRound.load(token);
+  const lastRoundData = aggregator.getRoundData(lastOnchainRound);
 
-  if (!lastStoredRound) {
-    // No entity found, just store last round data
-    const lastRoundData = aggregator.getRoundData(lastOnchainRound);
-
-    _storeChainlinkPrice(
-      token,
-      lastRoundData.value1,
-      lastRoundData.value3,
-      blockNumber
-    );
-  } else {
-    // Iterate rounds from last stored round to last one and store them
-    for (
-      let round = lastStoredRound.round;
-      round.equals(lastOnchainRound);
-      round.plus(BigInt.fromI32(1))
-    ) {
-      const roundData = aggregator.getRoundData(round);
-      _storeChainlinkPrice(
-        token,
-        roundData.value1,
-        roundData.value3,
-        blockNumber
-      );
-    }
-  }
+  _storeChainlinkPrice(
+    token,
+    lastRoundData.value1,
+    lastRoundData.value3,
+    blockNumber
+  );
 }

@@ -4,10 +4,12 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
+    "clean": "graph clean",
     "deploy-prod": "graph deploy --product hosted-service gmx-io/gmx-stats",
     "deploy-test": "graph deploy --product hosted-service gdev8317/gmx-arbitrum-stats --deploy-key $(cat .access_token)",
     "deploy-satsuma": "graph deploy gmx-arbitrum-stats --version-label $(git rev-parse --abbrev-ref HEAD)-$(date '+%y%m%d%H%M%S')-$(git rev-parse --short HEAD) --node https://app.satsuma.xyz/api/subgraphs/deploy --ipfs https://ipfs.satsuma.xyz --deploy-key $(cat .satsuma_token)",
     "deploy-satsuma:cantoTestnet": "graph deploy gmx-arbitrum-stats --version-label $(git rev-parse --abbrev-ref HEAD)-$(date '+%y%m%d%H%M%S')-$(git rev-parse --short HEAD) --node http://localhost:8020 --ipfs http://localhost:5001/",
+    "create-local": "graph create gmx-arbitrum-stats --node http://127.0.0.1:8020",
     "deploy-local": "graph deploy gmx-arbitrum-stats --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020",
     "redeploy-local": "yarn remove-local && yarn create-local && yarn deploy-local"
   },
